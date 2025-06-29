@@ -4,34 +4,16 @@ import time
 import statistics
 from tabulate import tabulate
 
-# ---------------------------------------------------------------------------
-# Utility helpers
-# ---------------------------------------------------------------------------
-
 def get_time_ns():
     """High-precision wall-clock time in nanoseconds."""
     return time.perf_counter_ns()
-
-# ---------------------------------------------------------------------------
-# Task-specific functions
-# ---------------------------------------------------------------------------
-
-IO_DELAY = 0.05  # seconds (~50 ms) – simulates I/O so multithreading helps
-
 
 def generate_random_numbers():
     """Return a list of 100 random integers in [0, 10000]."""
     return [random.randint(0, 10_000) for _ in range(100)]
 
-
-def random_set_task(dest, idx, delay=IO_DELAY):
-
+def random_set_task(dest, idx):
     dest[idx] = generate_random_numbers()
-    time.sleep(delay)  # I/O-like wait – overlaps across threads
-
-# ---------------------------------------------------------------------------
-# Experiment runners
-# ---------------------------------------------------------------------------
 
 def run_multithreaded_once():
     """Run one multithreaded round and return elapsed ns."""
@@ -75,10 +57,6 @@ def run_non_multithreaded_once():
     end_time_ns = get_time_ns()
     return end_time_ns - start_time_ns
 
-# ---------------------------------------------------------------------------
-# High-level orchestration
-# ---------------------------------------------------------------------------
-
 def run_experiments(rounds=10):
     """Run `rounds` experiment cycles and collect timing statistics."""
     multithread_times = []
@@ -99,10 +77,6 @@ def run_experiments(rounds=10):
         time_differences.append(difference_time)
 
     return multithread_times, non_multithread_times, time_differences
-
-# ---------------------------------------------------------------------------
-# Pretty printing
-# ---------------------------------------------------------------------------
 
 def display_results(multithread_times, non_multithread_times, time_differences):
     rounds = len(multithread_times)
@@ -151,10 +125,6 @@ def display_results(multithread_times, non_multithread_times, time_differences):
             tablefmt="grid",
         )
     )
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     mt_times, nmt_times, differences = run_experiments(10)
